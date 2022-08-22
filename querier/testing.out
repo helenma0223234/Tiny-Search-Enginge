@@ -1,0 +1,117 @@
+#!/bin/bash
+
+# Testing script for querier
+# Yuchuan Ma, May 9, 2021
+# CS50 Lab 5
+
+# test with various invalid input
+# testing indexer with no argument
+./querier
+usage: ./querier pageDirectory indexFilename
+# testing indexer with one argument
+./querier ~/cs50-dev/shared/tse/output/letters-10
+usage: ./querier pageDirectory indexFilename
+# testing indexer with four argument
+./quereir ~/cs50-dev/shared/tse/output/letters-10 errorArg otherErrorArg
+testing.sh: line 13: ./quereir: No such file or directory
+# testing indexer with non-existent path
+./querier ~/cs50-dev/shared/tse/output/hello ../data/letters-10.index
+./querier: '/thayerfs/home/f0043bc/cs50-dev/shared/tse/output/hello' invalid directory
+# testing indexer with invalid crawler-produced directory
+./querier ../crawler  ~/cs50-dev.index
+./querier: '../crawler' invalid directory
+# testing indexer with invalid indexFile
+./querier ~/cs50-dev/shared/tse/output/letters-0 ~/cs50-dev/data/cantopen.out
+./querier: '/thayerfs/home/f0043bc/cs50-dev/data/cantopen.out' invalid indexer destination
+
+# correct command line input tests
+# testing incorrect query and simple querying with valgrind
+cd ..
+seed1="http://cs50tse.cs.dartmouth.edu/tse/letters/index.html"
+pdir1="data/letters-2"
+indx1="data/letters-2.index"
+#mkdir $pdir1
+#crawler/crawler $seed1 $pdir1 2
+#indx1="data/letters-2.index"
+# run query on letters-2
+valgrind --leak-check=full --show-leak-kinds=all querier/querier $pdir1 $indx1 < querier/testingquery.in
+==19392== Memcheck, a memory error detector
+==19392== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==19392== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==19392== Command: querier/querier data/letters-2 data/letters-2.index
+==19392== 
+Query: and
+Error: 'and' cannot be first
+-----------------------------------------------
+Query: or
+Error: 'or' cannot be first
+-----------------------------------------------
+Query: hi or or
+Error: 'or' cannot be last
+-----------------------------------------------
+Query: hi and and
+Error: 'and' cannot be last
+-----------------------------------------------
+Query: home or
+Error: 'or' cannot be last
+-----------------------------------------------
+Query: home and
+Error: 'and' cannot be last
+-----------------------------------------------
+Query: hi and or hi
+No documents match.
+-----------------------------------------------
+Query: hi or and hi
+Error: 'and' cannot be last
+-----------------------------------------------
+Error: bad character '!' in query.
+Error: bad character '8' in query.
+Query: space dont matter
+No documents match.
+-----------------------------------------------
+Query: home or tse or first and this
+No documents match.
+-----------------------------------------------
+Done! result freed
+deleting idx...
+==19392== 
+==19392== HEAP SUMMARY:
+==19392==     in use at exit: 0 bytes in 0 blocks
+==19392==   total heap usage: 769 allocs, 769 frees, 38,794 bytes allocated
+==19392== 
+==19392== All heap blocks were freed -- no leaks are possible
+==19392== 
+==19392== For counts of detected and suppressed errors, rerun with: -v
+==19392== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+
+# testing querying
+pdir="data/toscrape-0"
+indx="data/toscrape-0.index"
+querier/querier $pdir $indx < querier/testingquery1.in
+Query: historical and boys
+Matches 1 documents (ranked):
+score  1 doc  1: http://cs50tse.cs.dartmouth.edu/tse/toscrape/index.html
+-----------------------------------------------
+Query: stock or rip or comment or init web
+Matches 1 documents (ranked):
+score  23 doc  1: http://cs50tse.cs.dartmouth.edu/tse/toscrape/index.html
+-----------------------------------------------
+Query: here christian or thriller basket
+Matches 1 documents (ranked):
+score  2 doc  1: http://cs50tse.cs.dartmouth.edu/tse/toscrape/index.html
+-----------------------------------------------
+Query: basket and results or basketi
+Matches 1 documents (ranked):
+score  1 doc  1: http://cs50tse.cs.dartmouth.edu/tse/toscrape/index.html
+-----------------------------------------------
+Query: games or travel or religion or woman
+Matches 1 documents (ranked):
+score  4 doc  1: http://cs50tse.cs.dartmouth.edu/tse/toscrape/index.html
+-----------------------------------------------
+Query: history and init or food
+Matches 1 documents (ranked):
+score  3 doc  1: http://cs50tse.cs.dartmouth.edu/tse/toscrape/index.html
+-----------------------------------------------
+Done! result freed
+deleting idx...

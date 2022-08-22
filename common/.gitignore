@@ -1,0 +1,4 @@
+# gitignore for common/
+pagedir
+word
+common.a

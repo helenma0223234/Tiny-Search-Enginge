@@ -1,0 +1,4 @@
+word 'home': docID 1 had different count 2213!=22 in index '../data/letters-2.index.out'
+word 'home': docID 13 not found in index '../data/letters-2.index.out'
+word 'for': docID 1 had different count 1213!=12 in index '../data/letters-2.index.out'
+word 'for': docID 13 not found in index '../data/letters-2.index.out'
